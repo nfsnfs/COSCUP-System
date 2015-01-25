@@ -136,3 +136,4 @@ ToDo
 5.  寄送歡迎信
 6.  /search API: 可以搜尋特定欄位，也可以搜尋哪些人沒有 or 沒填某些欄位
 7.  /project API: 讓組長可以開啟 project，其他人可自由加入 
+8.  整理 code
