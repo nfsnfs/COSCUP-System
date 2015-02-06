@@ -57,6 +57,34 @@ admin_permission = {
     }
 }
 
+organizer_permission = { 
+    'role': 'organizer',
+    'fields': { 'id': { 'read': [], 'write': ['self'] },
+                'team': { 'read': [], 'write': ['self'] },
+                'last_name': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'first_name': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'nickname': { 'read': [], 'write': ['self'] },
+                'gender': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'email': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'phone': { 'read': ['self', 'admin'], 'write': ['self'] },
+                't-shirt': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'food': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'certificate': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'accommodation': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'traffic': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'origin': { 'read': ['self', 'admin', 'organizer'], 'write':['self'] },
+                'birthday': { 'read': ['self', 'admin'], 'write':['self'] },
+                'new': { 'read': ['self', 'admin', 'organizer'], 'write':['self'] },
+                'language': { 'read': ['self', 'admin', 'organizer'], 'write':['self'] },
+                'skill': { 'read': ['self', 'admin', 'organizer'], 'write':['self'] },
+                'others': { 'read': ['self', 'admin', 'organizer'], 'write':['self'] },
+                'redmine': { 'read': [], 'write':['self'] },
+                'project': { 'read': [], 'write':['self', 'admin'] },
+                'role': { 'read': [], 'write':['admin'] },
+                'comment': { 'read': ['admin'], 'write':['admin'] },
+    }
+}
+
 team_admin_permission = { 
     'role': 'team-admin',
     'fields': { 'id': { 'read': [], 'write': ['self'] },

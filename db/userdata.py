@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ''' UserData
     
@@ -11,16 +10,16 @@ class UserData(Document):
     use_schemaless = True
 
     structure = { 
-        'id': basestring,
+        'id': unicode,
         'team': list,
         'team-lead': list,
         'last_name': unicode,
         'first_name': unicode,
         'nickname': unicode,
-        'gender': basestring,
-        'email': basestring,
-        'phone': basestring,
-        't-shirt': basestring,
+        'gender': unicode,
+        'email': unicode,
+        'phone': unicode,
+        't-shirt': unicode,
         'food': unicode,
         'certificate': bool,
         'accommodation': bool,
@@ -33,11 +32,10 @@ class UserData(Document):
         'others': unicode,
         'project': list,
         'role': list,
-        'redmine': basestring,
+        'redmine': unicode,
         'comment': unicode
     }
     
     required_fields = [ 'id', 'team', 'last_name', 'first_name',
         'nickname', 'gender', 'email', 'phone', 't-shirt', 'food', 'certificate',
-        'accommodation', 'traffic', 'origin', 'birthday', 'new', 'language', 
-        'skill', 'others', 'redmine' ]
+        'accommodation', 'traffic', 'origin', 'birthday', 'new', 'redmine' ]

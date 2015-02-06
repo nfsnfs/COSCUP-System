@@ -68,13 +68,27 @@ Progress
 
     response:
         { "token": token }
+
+*   /invite - 邀請 (admin only)
+    
+    method: POST
+
+    header:
+        Token: token
+
+    parameter:
+        [{ "nickname": nickname, "email": email, "team": team }]
+
+    response:
+        { "msg": "ok", "email: [ "email1", "email2", ... ]}
+
         
-*   /apply - Apply account 申請帳號
+*   /apply/&lt;apply_token&gt;- Apply account 申請帳號 (改成邀請制)
     
     method: POST
     
     parameter:
-        { "user": user_id, "passwd": user_passwd }
+        { "user": user_id, "passwd": user_passwd, "email": user_email }
 
     response:
         { "msg": "ok" }
@@ -84,13 +98,13 @@ Progress
     method: GET
 
     header:
-        Authorization: token
+        Token: token
 
     
     method: POST - create / PUT - update
 
     header:
-        Authorization: token
+        Token: token
 
     parameter:
         Example:
@@ -125,6 +139,7 @@ Progress
     * 'project': list,          參與 project
     * 'role': list,             角色權限    (系統設定)
     * 'redmine': basestring,    redmine 帳號
+    * 'comment': unicode,       Admin 用的備註欄位
 
 ToDo
 ----

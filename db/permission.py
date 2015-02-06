@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 ''' The ORM of permission collection which contains fields and collection
 
