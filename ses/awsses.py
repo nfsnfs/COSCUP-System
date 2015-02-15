@@ -39,3 +39,19 @@ def send_first(info):
         
     return r
 
+def send_welcome(info):
+    
+    try:
+        template = env.get_template('coscup_welcome.html')
+        r = conn.send_email(
+            source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+            subject=u'COSCUP2015 歡迎你 - {nickname}'.format(**info),
+            to_address='{email}'.format(**info),
+            format='html',
+            body=template.render(**info),
+        )
+    except Exception as e:
+        print e
+        return None
+
+    return r
