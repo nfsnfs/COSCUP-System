@@ -164,6 +164,12 @@ def userInfo():
         except Exception:
             return jsonify({ 'exception': 'system error' })
         
+        # send welcome mail
+        info = { 'email': new_userdata['email'], 'nickname': new_userdata['nickname'] }
+        r = ses.send_welcome(info)
+        if r == None:
+            return jsonify({ 'msg': 'ok', 'exception': 'cannot send welcome mail' })
+
         return jsonify({ 'msg': 'ok' })
 
     elif request.method == 'PUT':
@@ -232,8 +238,11 @@ def send_checkin_mail():
                 url += generate_token(tmp, config.TOKEN_SECRET, config.TOKEN_ALGO)
                 url += '#apply'
                 tmp['url'] = url
-                ses.awsses.send_first(tmp)
-                response['email'].append(tmp['email'])
+                r = ses.awsses.send_first(tmp)
+                if r != None:
+                    response['email'].append(tmp['email'])
+                else:
+                    raise Exception('something error')
 
     except Exception as e:
         print e
