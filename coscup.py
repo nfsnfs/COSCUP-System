@@ -19,6 +19,8 @@ import config
 app = Flask(__name__)
 api_ver = r'0.1'
 
+sys.stdout = sys.stderr
+
 '''
 Welcome
 '''
@@ -226,7 +228,7 @@ def send_checkin_mail():
         if 'admin' in account['role']:
             for tmp in request.json:
                 print tmp
-                url = 'https://coscup.nfsnfs.net/?apply=' 
+                url = 'https://staff.coscup.org/?apply=' 
                 url += generate_token(tmp, config.TOKEN_SECRET, config.TOKEN_ALGO)
                 url += '#apply'
                 tmp['url'] = url

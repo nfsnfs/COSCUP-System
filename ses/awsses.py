@@ -6,7 +6,7 @@ from config import AWSID, AWSKEY
 from email.header import Header
 
 conn = SESConnection(AWSID, AWSKEY)
-env = Environment(loader=FileSystemLoader('/home/nfsnfs/coscup_system/coscup/template'))
+env = Environment(loader=FileSystemLoader('/vhosts/staff.coscup.org/www/api/coscup/template'))
 
 COSCUP_TEAM_ADMIN = u'COSCUP 行政組'
 COSCUP_TEAM_ADMIN_MAIL = u'secretary@coscup.org'
@@ -32,6 +32,7 @@ def send_first(info):
             format='html',
             body=template.render(**info),
         )
+	print r
     except Exception as e:
         print e
         return None
