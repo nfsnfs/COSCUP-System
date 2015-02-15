@@ -46,10 +46,11 @@ def send_welcome(info):
         r = conn.send_email(
             source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
             subject=u'COSCUP2015 歡迎你 - {nickname}'.format(**info),
-            to_address='{email}'.format(**info),
+            to_addresses='{email}'.format(**info),
             format='html',
             body=template.render(**info),
         )
+        print r
     except Exception as e:
         print e
         return None

@@ -161,12 +161,15 @@ def userInfo():
             return jsonify({ 'exception': 'field(s) type error' })
         except DuplicateKeyError:
             return jsonify({ 'exception': 'user existed' })
-        except Exception:
+        except Exception as e:
+            print e
+            import traceback
+            print traceback.format_exc()
             return jsonify({ 'exception': 'system error' })
         
         # send welcome mail
         info = { 'email': new_userdata['email'], 'nickname': new_userdata['nickname'] }
-        r = ses.send_welcome(info)
+        r = ses.awsses.send_welcome(info)
         if r == None:
             return jsonify({ 'msg': 'ok', 'exception': 'cannot send welcome mail' })
 
@@ -233,7 +236,7 @@ def send_checkin_mail():
     try:
         if 'admin' in account['role']:
             for tmp in request.json:
-                print tmp
+                #print tmp
                 url = 'https://staff.coscup.org/?apply=' 
                 url += generate_token(tmp, config.TOKEN_SECRET, config.TOKEN_ALGO)
                 url += '#apply'
