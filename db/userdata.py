@@ -24,6 +24,8 @@ class UserData(Document):
         'certificate': bool,
         'accommodation': bool,
         'traffic': bool,
+        'commuting': bool,
+        'id-number': unicode,
         'origin': unicode,
         'birthday': int,
         'new': bool,
@@ -38,4 +40,4 @@ class UserData(Document):
     
     required_fields = [ 'id', 'team', 'last_name', 'first_name',
         'nickname', 'gender', 'email', 'phone', 't-shirt', 'food', 'certificate',
-        'accommodation', 'traffic', 'origin', 'birthday', 'new', 'redmine' ]
+        'accommodation', 'traffic', 'origin', 'birthday', 'new', 'redmine', 'commuting' ]
