@@ -1,5 +1,4 @@
 from celery import Celery
-from db.newuser import NewUser
 from mongokit import *
 
 import ses.awsses

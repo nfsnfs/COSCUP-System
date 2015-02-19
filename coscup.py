@@ -13,7 +13,6 @@ from tasks import *
 from db.permission import Permission
 from db.account import Account
 from db.userdata import UserData
-from db.newuser import NewUser
 
 import ses.awsses
 import config
@@ -115,7 +114,7 @@ def userInfo():
         return jsonify({ 'execption': 'token error' })
 
     connection = Connection()
-    connection.register([Permission, UserData, Account, NewUser])
+    connection.register([Permission, UserData, Account])
 
     if request.method == 'GET':
         # get my user information
@@ -144,6 +143,7 @@ def userInfo():
             permission = get_permission(['self'])
 
             for key in permission:
+                print key
                 if 'self' in permission[key]['write'] and key in request.json:
                     new_userdata[key] = request.json[key]
 
@@ -169,11 +169,6 @@ def userInfo():
             print traceback.format_exc()
             return jsonify({ 'exception': 'system error' })
         
-        # add new user to db
-        #newuser = connection.NewUser()
-        #newuser['id'] = user
-        #newuser.save()
-    
         # deferred send mail to admin
         notify_info = {
             'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
