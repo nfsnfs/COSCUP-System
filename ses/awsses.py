@@ -2,11 +2,11 @@
 
 from jinja2 import Environment, FileSystemLoader
 from boto.ses.connection import SESConnection
-from config import AWSID, AWSKEY
+from config import AWSID, AWSKEY, TEMPLATE
 from email.header import Header
 
 conn = SESConnection(AWSID, AWSKEY)
-env = Environment(loader=FileSystemLoader('/vhosts/staff.coscup.org/www/api/coscup/template'))
+env = Environment(loader=FileSystemLoader(TEMPLATE))
 
 COSCUP_TEAM_ADMIN = u'COSCUP 行政組'
 COSCUP_TEAM_ADMIN_MAIL = u'secretary@coscup.org'
@@ -46,6 +46,25 @@ def send_welcome(info):
         r = conn.send_email(
             source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
             subject=u'COSCUP2015 歡迎你 - {nickname}'.format(**info),
+            to_addresses='{email}'.format(**info),
+            format='html',
+            body=template.render(**info),
+        )
+        print r
+    except Exception as e:
+        print e
+        return None
+
+    return r
+
+def send_new_user_to_admin(info):
+
+    try:
+        template = env.get_template('new_user_to_admin.html')
+
+        r = conn.send_email(
+            source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+            subject=u'本日新註冊會員 - {date}'.format(**info),
             to_addresses='{email}'.format(**info),
             format='html',
             body=template.render(**info),

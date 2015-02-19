@@ -3,3 +3,7 @@ TOKEN_SECRET = r'your secret'
 TOKEN_ALGO = r'your hash algorithm'
 AWSID = r'your AWS ID for ses'
 AWSKEY = r'your AWS Key for ses'
+BASEURL = r'your base url'
+TEMPLATE = r'the path of template'
+CELERY_BROKER_URL = r'your mongodb url for celery'
+ADMIN_MAIL = ['slack admin\'s email', 'redmine admin\'s email']

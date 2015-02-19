@@ -9,9 +9,11 @@ from pymongo.errors import DuplicateKeyError
 
 from util.crypto import *
 from util.userperm import *
+from tasks import *
 from db.permission import Permission
 from db.account import Account
 from db.userdata import UserData
+from db.newuser import NewUser
 
 import ses.awsses
 import config
@@ -113,7 +115,7 @@ def userInfo():
         return jsonify({ 'execption': 'token error' })
 
     connection = Connection()
-    connection.register([Permission, UserData, Account])
+    connection.register([Permission, UserData, Account, NewUser])
 
     if request.method == 'GET':
         # get my user information
@@ -167,6 +169,24 @@ def userInfo():
             print traceback.format_exc()
             return jsonify({ 'exception': 'system error' })
         
+        # add new user to db
+        #newuser = connection.NewUser()
+        #newuser['id'] = user
+        #newuser.save()
+    
+        # deferred send mail to admin
+        notify_info = {
+            'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'id': user,
+            'target_email': new_userdata['email'],
+            'redmine': new_userdata['redmine'],
+            'team': new_userdata['team']
+        }
+
+        for mail in config.ADMIN_EMAIL:
+            notify_info['email'] = mail
+            notify_new_user_to_admin.delay(notify_info)
+
         # send welcome mail
         info = { 'email': new_userdata['email'], 'nickname': new_userdata['nickname'] }
         r = ses.awsses.send_welcome(info)
@@ -237,7 +257,7 @@ def send_checkin_mail():
         if 'admin' in account['role']:
             for tmp in request.json:
                 #print tmp
-                url = 'https://staff.coscup.org/?apply=' 
+                url = config.BASEURL + '/?apply=' 
                 url += generate_token(tmp, config.TOKEN_SECRET, config.TOKEN_ALGO)
                 url += '#apply'
                 tmp['url'] = url
