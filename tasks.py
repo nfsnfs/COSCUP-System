@@ -11,9 +11,6 @@ def test(a, b):
 
 @celery.task
 def notify_new_user_to_admin(info):
-    mail_list = info['email']
-    for mail in mail_list:
-        info['email'] = mail
-        r = ses.awsses.send_new_user_to_admin(info)
+    r = ses.awsses.send_new_user_to_admin(info)
 
     return r

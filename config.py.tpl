@@ -6,4 +6,4 @@ AWSKEY = r'your AWS Key for ses'
 BASEURL = r'your base url'
 TEMPLATE = r'the path of template'
 CELERY_BROKER_URL = r'your mongodb url for celery'
-ADMIN_MAIL = ['slack admin\'s email', 'redmine admin\'s email']
+ADMIN_EMAIL = ['slack admin\'s email', 'redmine admin\'s email']

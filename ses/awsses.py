@@ -64,7 +64,7 @@ def send_new_user_to_admin(info):
 
         r = conn.send_email(
             source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
-            subject=u'本日新註冊會員 - {date}'.format(**info),
+            subject=u'新註冊會員 - {date}'.format(**info),
             to_addresses='{email}'.format(**info),
             format='html',
             body=template.render(**info),
