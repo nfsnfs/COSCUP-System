@@ -175,7 +175,9 @@ def userInfo():
             'id': user,
             'target_email': new_userdata['email'],
             'redmine': new_userdata['redmine'],
-            'team': new_userdata['team']
+            'team': new_userdata['team'],
+            'first_name': new_userdata['first_name'],
+            'last_name': new_userdata['last_name']
         }
 
         for mail in config.ADMIN_EMAIL:
