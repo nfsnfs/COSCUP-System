@@ -122,11 +122,13 @@ def userInfo():
             response = {}
             userdata = connection.UserData.find_one({ 'id': user })
             permission = get_permission(userdata['role'])
+            #print userdata
 
             for key in permission:
                 if not permission[key]['read'] or 'self' in set(permission[key]['read']):
                     #print key, userdata[key]
-                    response[key] = userdata[key]
+                    if key in userdata:
+                        response[key] = userdata[key]
 
         except Exception as e:
             print e
