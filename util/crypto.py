@@ -23,10 +23,40 @@ def decrypt_token(token, secret, algo):
 def get_user_from_token(token, secret, algo):
     json_dict = decrypt_token(token, secret, algo)
     user = json_dict['user']
-    expired_time = datetime.strptime(json_dict['expired'], "%Y-%m-%d %H:%M:%S")
+    expired_time = datetime.strptime(json_dict['expired'], '%Y-%m-%d %H:%M:%S')
+
+    try:
+        reset = json_dict['reset']
+    except:
+        reset = 0
 
     if datetime.now() > expired_time:
         raise Exception('token expired')
 
+    if reset == 1:
+        raise Exception('not login token')
+
     return user
 
+def get_user_from_reset_passwd(token, secret, algo):
+    json_dict = decrypt_token(token, secret, algo)
+    user = json_dict['user']
+    expired_time = datetime.strftime(json_dict['expired'], '%Y-%m-%d %H:%M:%S')
+
+    try:
+        reset = json_dict['reset']
+    except:
+        reset = 0
+
+    if datetime.now() > expired_time:
+        raise Exception('token expired')
+
+    if reset != 1:
+        raise Exception('not reset password token')
+
+    return user
+
+
+def is_correct_passwd(db_passwd, passwd, salt):
+    return db_passwd == hash_passwd(passwd, salt)
+    

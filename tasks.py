@@ -14,3 +14,9 @@ def notify_new_user_to_admin(info):
     r = ses.awsses.send_new_user_to_admin(info)
 
     return r
+
+@celery.task
+def forget_passwd(info):
+    r = ses.awsses.send_forget_passwd(info)
+
+    return r

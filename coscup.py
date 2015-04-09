@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import sys
+import traceback
+import copy
 
 from flask import Flask, jsonify, request, abort
 from mongokit import *
@@ -13,6 +15,7 @@ from tasks import *
 from db.permission import Permission
 from db.account import Account
 from db.userdata import UserData
+from db.userdatalog import UserDataLog
 
 import ses.awsses
 import config
@@ -28,6 +31,7 @@ Welcome
 @app.route('/')
 def hello_coscup():
     return jsonify({ 'msg': 'Hello COSCUP', 'ver': api_ver })
+
 
 '''
 Login 
@@ -47,14 +51,15 @@ def login():
     account = connection.Account.find_one({'id': user})
     if account:
         # check password
-        if hash_passwd(passwd, config.SALT) == account['passwd']:
+        if is_correct_passwd(account['passwd'], passwd, config.SALT):
             expired_time = datetime.now() + timedelta(hours=1)
             message = { 'user': account['id'], 'expired': expired_time.strftime('%Y-%m-%d %H:%M:%S') }
             
             return jsonify({ 'token': generate_token(message, config.TOKEN_SECRET, config.TOKEN_ALGO), 
                     'role': account['role'], 'data': account['data'] })
     
-    return jsonify({ 'exception': 'something went wrong' })
+    return jsonify({ 'exception': 'wrong id or password' })
+
 
 ''' 
 Apply account
@@ -102,41 +107,50 @@ def apply(temp_token):
     elif request.method == 'GET':
         return jsonify({ 'email': user_temp['email'], 'team': user_temp['team'] })
 
+
 '''
 User personal information detail
-POST/GET/PUT /user
+POST/GET/PUT /user/<target_user>
+if there is no target_user, this endpoint would GET/POST/PUT the his/her own data
 '''
-@app.route('/user', methods=['GET', 'POST', 'PUT'])
-def userInfo():
+@app.route('/user/', methods=['GET', 'POST', 'PUT'], defaults={ 'target_user': '' })
+@app.route('/user/<target_user>', methods=['GET', 'POST', 'PUT'])
+def userInfo(target_user):
     try:
         user = get_user_from_token(request.headers['Token'], config.TOKEN_SECRET, config.TOKEN_ALGO)
     except:
         return jsonify({ 'execption': 'token error' })
 
+    self = False
+
+    if target_user == '' or target_user == user:
+        target_user = user
+        self = True
+        
     connection = Connection()
-    connection.register([Permission, UserData, Account])
+    connection.register([Permission, UserData, Account, UserDataLog])
 
     if request.method == 'GET':
+        response = {}
         # get my user information
         try:
-            response = {}
             userdata = connection.UserData.find_one({ 'id': user })
-            permission = get_permission(userdata['role'])
-            #print userdata
+            target_userdata = connection.UserData.find_one({ 'id': target_user })
+            permission = get_permission(target_userdata['role'])
 
             for key in permission:
-                if not permission[key]['read'] or 'self' in set(permission[key]['read']):
-                    #print key, userdata[key]
-                    if key in userdata:
-                        response[key] = userdata[key]
+                if key in target_userdata:
+                    if check_read_permission(userdata['role'], permission[key]['read'], self):
+                        response[key] = target_userdata[key]
 
         except Exception as e:
-            print e
+            print traceback.format_exc()
             return jsonify({ 'exception': 'user not found' })
 
         return jsonify(response)
 
     elif request.method == 'POST':
+        # POST method only deals with 'self' data, instead of target_user
         # insert my user information
         try:
             account = connection.Account.find_one({ 'id': user })
@@ -166,12 +180,10 @@ def userInfo():
         except DuplicateKeyError:
             return jsonify({ 'exception': 'user existed' })
         except Exception as e:
-            print e
-            import traceback
             print traceback.format_exc()
             return jsonify({ 'exception': 'system error' })
         
-        # deferred send mail to admin
+        # celery: deferred send mail to admin
         notify_info = {
             'date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'id': user,
@@ -189,7 +201,7 @@ def userInfo():
         # send welcome mail
         info = { 'email': new_userdata['email'], 'nickname': new_userdata['nickname'] }
         r = ses.awsses.send_welcome(info)
-        if r == None:
+        if r is None:
             return jsonify({ 'msg': 'ok', 'exception': 'cannot send welcome mail' })
 
         return jsonify({ 'msg': 'ok' })
@@ -198,16 +210,30 @@ def userInfo():
         # update my user information
         try:
             userdata = connection.UserData.find_one({ 'id': user })
+            target_userdata = connection.UserData.find_one({ 'id': target_user })
+            old_target_userdata = copy.deepcopy(target_userdata)
 
-            permission = get_permission(['self'])
+            permission = get_permission(target_userdata['role'])
+
+            log_entry = connection.UserDataLog()
+            log_entry['who'] = user
+            log_entry['id'] = target_user
+            log_entry['modified'] = list()
 
             for key in permission:
-                if 'self' in permission[key]['write'] and key in request.json:
-                   userdata[key] = request.json[key]
+                if check_write_permission(userdata['role'], permission[key]['write'], self) and key in request.json:
+                    target_userdata[key] = request.json[key]
+                    if target_userdata[key] != old_target_userdata[key]:
+                        modified = { key: {'old': old_target_userdata[key], 'new': target_userdata[key]} }
+                        log_entry['modified'].append(modified)
             
-            userdata.save()
+            target_userdata.save()
+            log_entry['datetime'] = datetime.now()
+            if log_entry['modified']:
+                log_entry.save()
             
-        except Exception:
+        except:
+            print traceback.format_exc()
             return jsonify({ 'exception': 'system error' })
 
         return jsonify({ 'msg': 'ok' })
@@ -217,21 +243,61 @@ def userInfo():
 Reset password
 POST
 '''
-@app.route('/resetpasswd', methods=['POST'])
-def resetPassword():
-    try:
-        user = request.json['user']
-        email = request.json['email']
-    except:
-        return jsonify({ 'exception': 'missing field(s)' })
+@app.route('/resetpasswd', methods=['POST'], defaults={ 'token': None})
+@app.route('/resetpasswd/<token>', methods=['POST'])
+def resetPassword(token):
 
     connection = Connection()
-    connection.register([UserData])
-    connection.UserData.find({ 'user': user, 'email': email })
+    connection.register([Account])
 
-    # todo: send mail to user
+    if token is not None:
+        # reset password 
+        try:
+            user = get_user_from_reset_passwd(token, config.TOKEN_SECRET, config.TOKEN_ALGO)
+        except Except as e:
+            return jsonify({ 'exception': e })
 
-    return jsonify({ 'msg': 'ok'})
+        try:
+            new_passwd = request.json['passwd']
+        except:
+            return jsonify({ 'exception': 'missing field(s)' })
+
+        user_account = connection.Account.find_one({ 'id': user })
+        user_account['passwd'] = hash_passwd(new_passwd, config.SALT)
+
+        user_account.save()
+
+        return jsonify({ 'msg': 'ok' })
+
+    else:
+        try:
+            user = request.json['user']
+            email = request.json['email']
+        except:
+            return jsonify({ 'exception': 'missing field(s)' })
+
+        try:
+            user_account = connection.Account.find_one({ 'id': user, 'email': email })
+            expired_time = datetime.now() + timedelta(hours=1)
+            token_data = { 'id': user_account['id'], 'email': user_account['email'], 
+                    'reset': 1, 'expired': expired_time.strftime('%Y-%m-%d %H:%M:%S') }
+
+            # celery: send mail to user
+            notify_info = {
+                    'user': user_account['id'],
+                    'email': email,
+                    'url': config.BASEURL + '/' + generate_token(token_data, config.TOKEN_SECRET, config.TOKEN_ALGO) + '#reset'
+            }
+
+            forget_passwd(notify_info)
+
+            return jsonify({ 'msg': 'ok' })
+
+        except:
+            print traceback.format_exc()
+            return jsonify({ 'exception': 'cannot find user' })
+
+        return jsonify({ 'msg': 'ok'})
 
     
 '''
@@ -255,7 +321,6 @@ def send_checkin_mail():
     try:
         if 'admin' in account['role']:
             for tmp in request.json:
-                #print tmp
                 url = config.BASEURL + '/?apply=' 
                 url += generate_token(tmp, config.TOKEN_SECRET, config.TOKEN_ALGO)
                 url += '#apply'
@@ -267,10 +332,41 @@ def send_checkin_mail():
                     raise Exception('something error')
 
     except Exception as e:
-        print e
+        print traceback.format_exc()
         return jsonify({ 'exception': 'system error' })
 
     return jsonify(response)
+
+
+'''
+Users
+GET
+'''
+@app.route('/users/', methods=['GET'], defaults={ 'team': '' })
+@app.route('/users/<team>', methods=['GET'])
+def users(team):
+    try:
+        user = get_user_from_token(request.headers['Token'], config.TOKEN_SECRET, config.TOKEN_ALGO)
+    except:
+        return jsonify({ 'exception': 'token error' })
+
+    connection = Connection()
+    connection.register([Permission, UserData, Account])
+
+    response = { 'msg': 'ok', 'users': [] }
+
+    if team == '':
+        # get all users
+        for user in connection.UserData.find():
+            response['users'].append({ 'id': user['id'], 'team': user['team'] })
+
+    else:
+        # get for a certain team
+        for user in connection.UserData.find({ 'team': team }):
+            response['users'].append({ 'id': user['id'], 'team': user['team'] })
+
+    return jsonify(response)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

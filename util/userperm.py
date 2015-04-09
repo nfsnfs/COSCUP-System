@@ -28,5 +28,23 @@ def get_permission(roles):
                 permission[key]['read'].extend(temp_perm[key]['read'])
                 permission[key]['write'].extend(temp_perm[key]['write'])
 
-    print permission
     return permission
+
+def check_read_permission(roles, target_perm, self):
+    roles_set = set(roles)
+    target_set = set(target_perm)
+
+    if self:
+        return 'self' in target_set or not target_set
+    else:
+        return roles_set.intersection(target_set) or not target_set
+
+def check_write_permission(roles, target_perm, self):
+    roles_set = set(roles)
+    target_set = set(target_perm)
+
+    if self:
+        roles_set.add('self')
+
+    return roles_set.intersection(target_set)
+

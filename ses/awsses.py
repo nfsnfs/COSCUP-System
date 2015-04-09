@@ -26,11 +26,11 @@ def send_first(info):
         template = env.get_template('coscup_first.html')
 
         r = conn.send_email(
-            source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
-            subject=u'COSCUP2015 請先完成資料登錄 - {nickname}'.format(**info),
-            to_addresses='{email}'.format(**info),
-            format='html',
-            body=template.render(**info),
+                source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+                subject=u'COSCUP2015 請先完成資料登錄 - {nickname}'.format(**info),
+                to_addresses='{email}'.format(**info),
+                format='html',
+                body=template.render(**info),
         )
 	print r
     except Exception as e:
@@ -44,11 +44,11 @@ def send_welcome(info):
     try:
         template = env.get_template('coscup_welcome.html')
         r = conn.send_email(
-            source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
-            subject=u'COSCUP2015 歡迎你 - {nickname}'.format(**info),
-            to_addresses='{email}'.format(**info),
-            format='html',
-            body=template.render(**info),
+                source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+                subject=u'COSCUP2015 歡迎你 - {nickname}'.format(**info),
+                to_addresses='{email}'.format(**info),
+                format='html',
+                body=template.render(**info),
         )
         print r
     except Exception as e:
@@ -63,11 +63,11 @@ def send_new_user_to_admin(info):
         template = env.get_template('new_user_to_admin.html')
 
         r = conn.send_email(
-            source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
-            subject=u'新註冊會員 - {date}'.format(**info),
-            to_addresses='{email}'.format(**info),
-            format='html',
-            body=template.render(**info),
+                source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+                subject=u'新註冊會員 - {date}'.format(**info),
+                to_addresses='{email}'.format(**info),
+                format='html',
+                body=template.render(**info),
         )
         print r
     except Exception as e:
@@ -75,3 +75,19 @@ def send_new_user_to_admin(info):
         return None
 
     return r
+
+def send_forget_passwd(info):
+
+    try:
+        template = env.get_template('forget_passwd.html')
+        
+        r = conn.send_email(
+                source=u'忘記密碼',
+                to_addresses='{email}'.format(**info),
+                format='html',
+                body=template.render(**info),
+        )
+        print r
+    except Exception as e:
+        print e
+        return None
