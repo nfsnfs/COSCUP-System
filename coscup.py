@@ -88,7 +88,6 @@ def apply(temp_token):
         email = user_temp['email']
         role = user_temp['team']
         data = False
-
         
         if not connection.Account.find_one({ 'id': user }):
             new_account = connection.Account()
@@ -159,7 +158,6 @@ def userInfo(target_user):
             permission = get_permission(['self'])
 
             for key in permission:
-                print key
                 if 'self' in permission[key]['write'] and key in request.json:
                     new_userdata[key] = request.json[key]
 
@@ -351,7 +349,7 @@ def users(team):
         return jsonify({ 'exception': 'token error' })
 
     connection = Connection()
-    connection.register([Permission, UserData, Account])
+    connection.register([UserData])
 
     response = { 'msg': 'ok', 'users': [] }
 
@@ -364,6 +362,49 @@ def users(team):
         # get for a certain team
         for user in connection.UserData.find({ 'team': team }):
             response['users'].append({ 'id': user['id'], 'team': user['team'] })
+
+    return jsonify(response)
+
+'''
+Search
+GET /search/?type=<type>&value=<value>
+'''
+@app.route('/search/', methods=['GET'])
+def search():
+    try:
+        user = get_user_from_token(request.headers['Token'], config.TOKEN_SECRET, config.TOKEN_ALGO)
+    except:
+        return jsonify({ 'exception': 'token error' })
+
+    search_type = request.args.get('type', '')
+    search_value = request.args.get('value', '')
+
+    response = { 'result': [], 'msg': 'ok' }
+
+    connection = Connection()
+    connection.register([Permission, UserData])
+
+    try:
+        userdata = connection.UserData.find_one({ 'id': user })
+
+        for user_result in connection.UserData.find({ search_type: search_value }):
+            temp_userdata = {}
+            self = False
+            if user_result['id'] == user:
+                self = True
+
+            permission = get_permission(user_result['role'])
+
+            if check_read_permission(userdata['role'], permission[search_type]['read'], self):
+                for key in permission:
+                    if check_read_permission(userdata['role'], permission[key]['read'], self):
+                        if key in user_result:
+                            temp_userdata[key] = user_result[key]
+                        
+                response['result'].append(temp_userdata)
+    except Exception as e:
+        print traceback.format_exc()
+        return jsonify({ 'exception': 'error' })
 
     return jsonify(response)
 
