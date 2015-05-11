@@ -4,6 +4,7 @@ import sys
 import traceback
 import copy
 
+import pymongo
 from flask import Flask, jsonify, request, abort
 from mongokit import *
 from datetime import datetime, timedelta
@@ -367,7 +368,8 @@ def users(team):
 
 '''
 Search
-GET /search/?type=<type>&value=<value>
+GET /search/?<type>=<value>
+if value is empty, that means "" or not existed
 '''
 @app.route('/search/', methods=['GET'])
 def search():
@@ -376,8 +378,61 @@ def search():
     except:
         return jsonify({ 'exception': 'token error' })
 
+    search_dict = {}
+    response = { 'users': [], 'msg': 'ok' }
+
+    connection = Connection()
+    connection.register([Permission, UserData])
+
+    # get the role of current user
+    try:
+        userdata = connection.UserData.find_one({ 'id': user })
+        role = userdata['role']
+    except:
+        jsonify({ 'exception': 'user not found'})
+
+    # get the query parameters
+    for key in request.args.keys():
+        search_dict.update({ key: request.args.get(key, '') })
+
+    try:
+        result = connection.UserData.find(search_dict).sort('id', 1)
+        #for user_result in connection.UserData.find(search_dict).sort('id', pymongo.DESCENDING):
+        for user_result in result:
+            temp_userdata = {}
+
+            if user_result['id'] == user:
+                self = True
+            else:
+                self = False
+
+            permission = get_permission(user_result['role'])
+
+            if all(check_read_permission(userdata['role'], permission[search_key]['read'], self) == True for search_key in search_dict):
+                for key in permission:
+                    temp_userdata.update({ key: user_result.get(key, '') })
+                
+                response['users'].append(temp_userdata)
+
+    except Exception as e:
+       print traceback.format_exc()
+       return jsonify({ 'exception': 'error' })
+
+    return jsonify(response)
+
+    '''
+    try:
+        user = get_user_from_token(request.headers['Token'], config.TOKEN_SECRET, config.TOKEN_ALGO)
+    except:
+        return jsonify({ 'exception': 'token error' })
+
     search_type = request.args.get('type', '')
     search_value = request.args.get('value', '')
+
+    for test in request.args:
+        print request.args[test]
+    print search_type
+    print search_value
 
     response = { 'result': [], 'msg': 'ok' }
 
@@ -406,6 +461,28 @@ def search():
         print traceback.format_exc()
         return jsonify({ 'exception': 'error' })
 
+    return jsonify(response)
+    '''
+
+'''
+Permission
+GET /perm/<role>
+'''
+@app.route('/perm/<role>', methods=['GET'])
+def perm(role):
+    response = {}
+
+    connection = Connection()
+    connection.register([Permission])
+
+    try:
+        permission = connection.Permission.find_one({ 'role': role })
+        response = permission['fields']
+        
+    except Exception as e:
+        print traceback.format_exc()
+        return jsonify({ 'exception': 'error' })
+    
     return jsonify(response)
 
 

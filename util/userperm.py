@@ -9,7 +9,6 @@ get_permission(roles)
 - roles: list field of the target UserData
 '''
 def get_permission(roles):
-    
     connection = Connection()
     connection.register([Permission])
 
@@ -48,3 +47,13 @@ def check_write_permission(roles, target_perm, self):
 
     return roles_set.intersection(target_set)
 
+'''
+Delete the fields in userdata which cannot be read by the current user
+clear_user_data(userdata, roles, target_perm, self)
+- userdata: the target userdata to be outputted
+- roles: the role field of the current user
+- target_perm: the read permission of the target userdata
+- self: is the userdata owned by the current user?
+'''
+#def clear_user_data(userdata, roles, target_perm, self):
+    
