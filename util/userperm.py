@@ -33,10 +33,18 @@ def check_read_permission(roles, target_perm, self):
     roles_set = set(roles)
     target_set = set(target_perm)
 
+    '''
     if self:
         return 'self' in target_set or not target_set
     else:
         return roles_set.intersection(target_set) or not target_set
+    '''
+    
+    if self:
+        roles_set.add('self')
+
+    # print roles_set.intersection(target_set)
+    return roles_set.intersection(target_set) or not target_set
 
 def check_write_permission(roles, target_perm, self):
     roles_set = set(roles)

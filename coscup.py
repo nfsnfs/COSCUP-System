@@ -408,9 +408,12 @@ def search():
 
             permission = get_permission(user_result['role'])
 
-            if all(check_read_permission(userdata['role'], permission[search_key]['read'], self) == True for search_key in search_dict):
+            if all(check_read_permission(userdata['role'], permission[search_key]['read'], self) for search_key in search_dict):
                 for key in permission:
-                    temp_userdata.update({ key: user_result.get(key, '') })
+                    print key, userdata['role'], permission[key]['read']
+                    if check_read_permission(userdata['role'], permission[key]['read'], self):
+                        print 'True'
+                        temp_userdata.update({ key: user_result.get(key, '') })
                 
                 response['users'].append(temp_userdata)
 
