@@ -113,7 +113,7 @@ User personal information detail
 POST/GET/PUT /user/<target_user>
 if there is no target_user, this endpoint would GET/POST/PUT the his/her own data
 '''
-@app.route('/user/', methods=['GET', 'POST', 'PUT'], defaults={ 'target_user': '' })
+@app.route('/user', methods=['GET', 'POST', 'PUT'], defaults={ 'target_user': '' })
 @app.route('/user/<target_user>', methods=['GET', 'POST', 'PUT'])
 def userInfo(target_user):
     try:
@@ -203,6 +203,7 @@ def userInfo(target_user):
         if r is None:
             return jsonify({ 'msg': 'ok', 'exception': 'cannot send welcome mail' })
 
+
         return jsonify({ 'msg': 'ok' })
 
     elif request.method == 'PUT':
@@ -242,7 +243,7 @@ def userInfo(target_user):
 Reset password
 POST
 '''
-@app.route('/resetpasswd', methods=['POST'], defaults={ 'token': None})
+@app.route('/resetpasswd', methods=['POST'], defaults={ 'token': None })
 @app.route('/resetpasswd/<token>', methods=['POST'])
 def resetPassword(token):
 

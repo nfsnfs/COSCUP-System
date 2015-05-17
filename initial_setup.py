@@ -12,6 +12,7 @@ def init_permission():
     db.permission.insert(permission_setting.self_permission)
     db.permission.insert(permission_setting.admin_permission)
     db.permission.insert(permission_setting.team_admin_permission)
+    db.permission.insert(permission_setting.organizer_permission)
     db.permission.insert(permission_setting.team_committee_permission)
     db.permission.insert(permission_setting.team_field_permission)
     db.permission.insert(permission_setting.team_sales_permission)
