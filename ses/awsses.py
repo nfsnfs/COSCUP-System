@@ -8,7 +8,7 @@ from email.header import Header
 conn = SESConnection(AWSID, AWSKEY)
 env = Environment(loader=FileSystemLoader(TEMPLATE))
 
-COSCUP_TEAM_ADMIN = u'COSCUP 行政組'
+COSCUP_TEAM_ADMIN = u'COSCUP 人事管理中心(行政組)'
 COSCUP_TEAM_ADMIN_MAIL = u'secretary@coscup.org'
 
 def mail_header(name, mail):
@@ -36,8 +36,9 @@ def send_first(info):
     except Exception as e:
         print e
         return None
-        
+
     return r
+        
 
 def send_welcome(info):
     
@@ -55,7 +56,6 @@ def send_welcome(info):
         print e
         return None
 
-    return r
 
 def send_new_user_to_admin(info):
 
@@ -82,7 +82,8 @@ def send_forget_passwd(info):
         template = env.get_template('forget_passwd.html')
         
         r = conn.send_email(
-                source=u'忘記密碼',
+                source=mail_header(COSCUP_TEAM_ADMIN, COSCUP_TEAM_ADMIN_MAIL),
+                subject=u'COSCUP 2015 - 密碼重置',
                 to_addresses='{email}'.format(**info),
                 format='html',
                 body=template.render(**info),
@@ -91,3 +92,5 @@ def send_forget_passwd(info):
     except Exception as e:
         print e
         return None
+
+    return r

@@ -254,7 +254,7 @@ def resetPassword(token):
         # reset password 
         try:
             user = get_user_from_reset_passwd(token, config.TOKEN_SECRET, config.TOKEN_ALGO)
-        except Except as e:
+        except Exception as e:
             return jsonify({ 'exception': e })
 
         try:
@@ -262,6 +262,7 @@ def resetPassword(token):
         except:
             return jsonify({ 'exception': 'missing field(s)' })
 
+        print user
         user_account = connection.Account.find_one({ 'id': user })
         user_account['passwd'] = hash_passwd(new_passwd, config.SALT)
 
@@ -272,12 +273,12 @@ def resetPassword(token):
     else:
         try:
             user = request.json['user']
-            email = request.json['email']
+            #email = request.json['email']
         except:
             return jsonify({ 'exception': 'missing field(s)' })
 
         try:
-            user_account = connection.Account.find_one({ 'id': user, 'email': email })
+            user_account = connection.Account.find_one({ 'id': user })
             expired_time = datetime.now() + timedelta(hours=1)
             token_data = { 'id': user_account['id'], 'email': user_account['email'], 
                     'reset': 1, 'expired': expired_time.strftime('%Y-%m-%d %H:%M:%S') }
@@ -285,8 +286,8 @@ def resetPassword(token):
             # celery: send mail to user
             notify_info = {
                     'user': user_account['id'],
-                    'email': email,
-                    'url': config.BASEURL + '/' + generate_token(token_data, config.TOKEN_SECRET, config.TOKEN_ALGO) + '#reset'
+                    'email': user_account['email'],
+                    'url': config.BASEURL + '/?r=' + generate_token(token_data, config.TOKEN_SECRET, config.TOKEN_ALGO) + '#reset'
             }
 
             forget_passwd(notify_info)

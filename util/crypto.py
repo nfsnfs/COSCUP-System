@@ -40,8 +40,9 @@ def get_user_from_token(token, secret, algo):
 
 def get_user_from_reset_passwd(token, secret, algo):
     json_dict = decrypt_token(token, secret, algo)
-    user = json_dict['user']
-    expired_time = datetime.strftime(json_dict['expired'], '%Y-%m-%d %H:%M:%S')
+    user = json_dict['id']
+    print json_dict
+    expired_time = datetime.strptime(json_dict['expired'], '%Y-%m-%d %H:%M:%S')
 
     try:
         reset = json_dict['reset']
