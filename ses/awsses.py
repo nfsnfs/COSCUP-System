@@ -56,6 +56,8 @@ def send_welcome(info):
         print e
         return None
 
+    return r
+
 
 def send_new_user_to_admin(info):
 
