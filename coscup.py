@@ -248,7 +248,7 @@ POST
 def resetPassword(token):
 
     connection = Connection()
-    connection.register([Account])
+    connection.register([Account, UserData])
 
     if token is not None:
         # reset password 
@@ -271,6 +271,7 @@ def resetPassword(token):
         return jsonify({ 'msg': 'ok' })
 
     else:
+        # send mail for resetting password
         try:
             user = request.json['user']
             #email = request.json['email']
@@ -278,15 +279,18 @@ def resetPassword(token):
             return jsonify({ 'exception': 'missing field(s)' })
 
         try:
-            user_account = connection.Account.find_one({ 'id': user })
+            #user_account = connection.Account.find_one({ 'id': user })
+            user_data = connection.UserData.find_one({ 'id': user })
             expired_time = datetime.now() + timedelta(hours=1)
-            token_data = { 'id': user_account['id'], 'email': user_account['email'], 
+            #token_data = { 'id': user_account['id'], 'email': user_account['email'], 
+            #        'reset': 1, 'expired': expired_time.strftime('%Y-%m-%d %H:%M:%S') }
+            token_data = { 'id': user_data['id'], 'email': user_data['email'], 
                     'reset': 1, 'expired': expired_time.strftime('%Y-%m-%d %H:%M:%S') }
 
             # celery: send mail to user
             notify_info = {
-                    'user': user_account['id'],
-                    'email': user_account['email'],
+                    'user': user_data['id'],
+                    'email': user_data['email'],
                     'url': config.BASEURL + '/?r=' + generate_token(token_data, config.TOKEN_SECRET, config.TOKEN_ALGO) + '#reset'
             }
 
