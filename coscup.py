@@ -408,16 +408,16 @@ def search():
             if tmp_value != '':
                 search_dict.update({ key: {'$all': tmp_value.split(',')}})
                 search_list.append(key)
-            break;
+            continue;
 
         if tmp_value == 'null':
             search_dict.update({ '$or': [{key: {'$exists': False}}, {key: ''}]})
             search_list.append(key)
-        elif tmp_value == 'true':
-            search_dict.update({ key: true })
+        elif tmp_value.lower() == 'true':
+            search_dict.update({ key: True })
             search_list.append(key)
-        elif tmp_value == 'false':
-            search_dict.update({ key: false })
+        elif tmp_value.lower() == 'false':
+            search_dict.update({ key: False })
             search_list.append(key)
         elif tmp_value != '':
             search_dict.update({ key: tmp_value })
@@ -426,7 +426,6 @@ def search():
     try:
         result = connection.UserData.find(search_dict).sort('id', 1)
         for user_result in result:
-            print user_result
             temp_userdata = {}
 
             if user_result['id'] == user:
