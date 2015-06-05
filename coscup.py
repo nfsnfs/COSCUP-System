@@ -385,6 +385,7 @@ def search():
         return jsonify({ 'exception': 'token error' })
 
     search_dict = {}
+    search_list = []
     response = { 'users': [], 'msg': 'ok' }
 
     connection = Connection()
@@ -399,12 +400,33 @@ def search():
 
     # get the query parameters
     for key in request.args.keys():
-        search_dict.update({ key: request.args.get(key, '') })
+        tmp_value = request.args.get(key, '')
+
+        # workaround
+        if key == 'team':
+            # parse this value to list
+            if tmp_value != '':
+                search_dict.update({ key: {'$all': tmp_value.split(',')}})
+                search_list.append(key)
+            break;
+
+        if tmp_value == 'null':
+            search_dict.update({ '$or': [{key: {'$exists': False}}, {key: ''}]})
+            search_list.append(key)
+        elif tmp_value == 'true':
+            search_dict.update({ key: true })
+            search_list.append(key)
+        elif tmp_value == 'false':
+            search_dict.update({ key: false })
+            search_list.append(key)
+        elif tmp_value != '':
+            search_dict.update({ key: tmp_value })
+            search_list.append(key)
 
     try:
         result = connection.UserData.find(search_dict).sort('id', 1)
-        #for user_result in connection.UserData.find(search_dict).sort('id', pymongo.DESCENDING):
         for user_result in result:
+            print user_result
             temp_userdata = {}
 
             if user_result['id'] == user:
@@ -414,11 +436,9 @@ def search():
 
             permission = get_permission(user_result['role'])
 
-            if all(check_read_permission(userdata['role'], permission[search_key]['read'], self) for search_key in search_dict):
+            if all(check_read_permission(userdata['role'], permission[search_key]['read'], self) for search_key in search_list):
                 for key in permission:
-                    print key, userdata['role'], permission[key]['read']
                     if check_read_permission(userdata['role'], permission[key]['read'], self):
-                        print 'True'
                         temp_userdata.update({ key: user_result.get(key, '') })
                 
                 response['users'].append(temp_userdata)
