@@ -223,8 +223,8 @@ def userInfo(target_user):
             for key in permission:
                 if check_write_permission(userdata['role'], permission[key]['write'], self) and key in request.json:
                     target_userdata[key] = request.json[key]
-                    if target_userdata[key] != old_target_userdata[key]:
-                        modified = { key: {'old': old_target_userdata[key], 'new': target_userdata[key]} }
+                    if old_target_userdata.get(key) is None or target_userdata[key] != old_target_userdata[key]:
+                        modified = { key: {'old': old_target_userdata.get(key), 'new': target_userdata[key]} }
                         log_entry['modified'].append(modified)
             
             target_userdata.save()
@@ -262,7 +262,7 @@ def resetPassword(token):
         except:
             return jsonify({ 'exception': 'missing field(s)' })
 
-        print user
+        # print user
         user_account = connection.Account.find_one({ 'id': user })
         user_account['passwd'] = hash_passwd(new_passwd, config.SALT)
 

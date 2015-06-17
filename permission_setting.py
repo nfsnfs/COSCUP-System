@@ -28,6 +28,9 @@ self_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin'], 'write': ['self'] },
     }
 }
 
@@ -58,6 +61,9 @@ admin_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin'], 'write': ['self'] },
     }
 }
 
@@ -88,6 +94,9 @@ organizer_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'organizer'], 'write': ['self'] },
     }
 }
 
@@ -118,6 +127,9 @@ team_admin_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-admin'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-admin'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-admin'], 'write': ['self'] },
     }
 }
 
@@ -148,6 +160,9 @@ team_committee_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-committee'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-committee'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-committee'], 'write': ['self'] },
     }
 }
 
@@ -179,6 +194,9 @@ team_field_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-field'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-field'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-field'], 'write': ['self'] },
     }
 }
 
@@ -209,6 +227,9 @@ team_sales_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-sales'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-sales'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-sales'], 'write': ['self'] },
     }
 }
 
@@ -239,6 +260,9 @@ team_cpr_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-cpr'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-cpr'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-cpr'], 'write': ['self'] },
     }
 }
 
@@ -269,6 +293,9 @@ team_marketing_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-marketing'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-marketing'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-marketing'], 'write': ['self'] },
     }
 }
 
@@ -299,6 +326,9 @@ team_accountant_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-accountant'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-accountant'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-accountant'], 'write': ['self'] },
     }
 }
 
@@ -329,6 +359,9 @@ cashier_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'cashier'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'cashier'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'cashier'], 'write': ['self'] },
     }
 }
 
@@ -359,5 +392,8 @@ team_archiving_permission = {
                 'project': { 'read': [], 'write':['self', 'admin'] },
                 'role': { 'read': [], 'write':['admin'] },
                 'comment': { 'read': ['admin'], 'write':['admin'] },
+                'transportation': { 'read': ['self', 'admin', 'team-archiving'], 'write': ['self'] },
+                'transport-fee': { 'read': ['self', 'admin', 'team-archiving'], 'write': ['self'] },
+                'accommodation-comment': { 'read': ['self', 'admin', 'team-archiving'], 'write': ['self'] },
     }
 }
